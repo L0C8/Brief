@@ -1,41 +1,29 @@
-import configparser
-import os
+from utils import (
+    get_all_themes,
+    get_theme_by_name,
+    get_all_theme_names,
+    get_selected_theme,
+    set_selected_theme
+)
 
-THEME_FILE = os.path.join("data", "themes.ini")
+def get_current_theme():
+    theme_name = get_selected_theme()
+    return get_theme_by_name(theme_name)
 
-available_themes = []
-current_theme = {}
-theme_names = []
+def list_themes():
+    return get_all_theme_names()
 
-def load_themes():
-    global available_themes, current_theme, theme_names
-    config = configparser.ConfigParser()
-    config.read(THEME_FILE)
+def switch_to_theme(index=None):
+    themes = get_all_theme_names()
+    current = get_selected_theme()
 
-    available_themes.clear()
-    theme_names.clear()
+    if current not in themes:
+        current = themes[0]
 
-    for section in config.sections():
-        theme = {key: value for key, value in config[section].items()}
-        theme["name"] = section
-        available_themes.append(theme)
-        theme_names.append(section)
+    if index is None:
+        current_index = themes.index(current)
+        index = (current_index + 1) % len(themes)
 
-    if available_themes:
-        set_theme_by_name(theme_names[0])
-
-def set_theme_by_name(name):
-    global current_theme
-    for theme in available_themes:
-        if theme["name"].lower() == name.lower():
-            current_theme = theme
-            return
-
-def toggle_theme():
-    global current_theme
-    if not available_themes:
-        return
-    index = available_themes.index(current_theme)
-    current_theme = available_themes[(index + 1) % len(available_themes)]
-
-load_themes()
+    selected = themes[index % len(themes)]
+    set_selected_theme(selected)
+    return get_theme_by_name(selected)
