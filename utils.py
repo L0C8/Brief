@@ -2,6 +2,26 @@ import configparser
 import os
 
 THEME_FILE = os.path.join("data", "themes.ini")
+USER_SETTINGS_FILE = os.path.join("data", "user_settings.ini")
+
+# theme settings
+
+def get_all_themes():
+    config = configparser.ConfigParser()
+    config.read(THEME_FILE)
+    return [{**config[section], "name": section} for section in config.sections()]
+
+def get_all_theme_names():
+    config = configparser.ConfigParser()
+    config.read(THEME_FILE)
+    return config.sections()
+
+def get_theme_by_name(name):
+    config = configparser.ConfigParser()
+    config.read(THEME_FILE)
+    if name in config:
+        return {**config[name], "name": name}
+    return None
 
 def save_theme(name, theme_dict):
     config = configparser.ConfigParser()
@@ -28,7 +48,6 @@ def delete_theme(name):
             config.write(configfile)
         return True
     return False
-
 
 def initialize_default_theme_file():
     if not os.path.exists(THEME_FILE):
@@ -77,3 +96,33 @@ headline = #bf360c
         with open(THEME_FILE, "w") as f:
             f.write(default_content)
         print("Default themes.ini created.")
+
+# user settings
+
+def initialize_user_settings():
+    if not os.path.exists(USER_SETTINGS_FILE):
+        default_content = """
+[Preferences]
+selected_theme = Dark
+""".strip()
+
+        with open(USER_SETTINGS_FILE, "w") as f:
+            f.write(default_content)
+        print("Default user_settings.ini created.")
+
+def get_selected_theme():
+    config = configparser.ConfigParser()
+    config.read(USER_SETTINGS_FILE)
+    return config.get("Preferences", "selected_theme", fallback="Dark")
+
+def set_selected_theme(theme_name):
+    config = configparser.ConfigParser()
+    config.read(USER_SETTINGS_FILE)
+
+    if not config.has_section("Preferences"):
+        config.add_section("Preferences")
+
+    config.set("Preferences", "selected_theme", theme_name)
+
+    with open(USER_SETTINGS_FILE, "w") as f:
+        config.write(f)
