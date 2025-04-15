@@ -1,3 +1,6 @@
+import os
+import json
+import time
 import tkinter as tk
 from tkinter import ttk
 from themes import get_current_theme, list_themes, switch_to_theme
@@ -16,14 +19,36 @@ class BriefApp(tk.Tk):
         theme = get_current_theme()
         self.apply_theme(theme)
 
-        self.test_button = tk.Button(self, text="Test", command=self.test_action)
-        self.test_button.pack(pady=(40, 10))
+        weather = scan_weather()
+        timestamp = "Unknown"
+        if os.path.exists("data/cached_weather.json"):
+            with open("data/cached_weather.json", "r") as f:
+                cached = json.load(f)
+                ts = cached.get("timestamp", None)
+                if ts:
+                    timestamp = time.strftime("%H:%M", time.localtime(ts))
+
+        self.weather_label = tk.Label(
+            self,
+            text=weather,
+            bg=self.bg,
+            fg=self.fg,
+            wraplength=200,
+            justify="center"
+        )
+        self.weather_label.pack(pady=(30, 5))
+
+        self.timestamp_label = tk.Label(
+            self,
+            text=f"Last updated: {timestamp}",
+            bg=self.bg,
+            fg=self.fg,
+            font=("Helvetica", 8)
+        )
+        self.timestamp_label.pack(pady=(0, 20))
 
         self.update_widget_styles(theme)
 
-    def test_action(self):
-        weather = scan_weather("test")
-        print(weather)
 
     def on_theme_change(self, event):
         selected_name = self.theme_var.get()
@@ -38,8 +63,6 @@ class BriefApp(tk.Tk):
         self.update_widget_styles(theme)
 
     def update_widget_styles(self, theme):
-        if hasattr(self, "test_button"):
-            self.test_button.config(bg=theme["button_bg"], fg=theme["button_fg"])
         self.configure(bg=theme["bg"])
 
 if __name__ == "__main__":
