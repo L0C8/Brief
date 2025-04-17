@@ -126,3 +126,15 @@ def set_selected_theme(theme_name):
 
     with open(USER_SETTINGS_FILE, "w") as f:
         config.write(f)
+
+# api data (temp, only weather)
+
+API_KEYS_FILE = os.path.join("data", "api_keys.ini")
+
+def get_api_key(service_name):
+    config = configparser.ConfigParser()
+    config.read(API_KEYS_FILE)
+    try:
+        return config[service_name]["key"]
+    except KeyError:
+        return None
