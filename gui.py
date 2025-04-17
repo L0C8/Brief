@@ -15,10 +15,11 @@ class BriefApp(tk.Tk):
         self.theme_names = list_themes()
         self.build_ui()
 
+    
     def build_ui(self):
         current_hour = time.localtime().tm_hour
         if 5 <= current_hour < 15:
-            gradient_start, gradient_end = "#4facfe", "#00f2fe"  # day
+            gradient_start, gradient_end = "#4facfe", "#00f2fe"  # morning/day
         elif 15 <= current_hour < 20:
             gradient_start, gradient_end = "#f9d423", "#ff4e50"  # sunset
         else:
@@ -29,6 +30,9 @@ class BriefApp(tk.Tk):
         self.weather_canvas = tk.Canvas(self, width=240, height=120, highlightthickness=0)
         self.weather_canvas.pack()
         self.draw_gradient(self.weather_canvas, gradient_start, gradient_end)
+
+        self.weather_icon = tk.PhotoImage(file="assets/01d.png").subsample(2, 2)
+        self.weather_canvas.create_image(0, 0, anchor="nw", image=self.weather_icon)
 
         weather = scan_weather()
         timestamp = "Unknown"
