@@ -16,8 +16,19 @@ class BriefApp(tk.Tk):
         self.build_ui()
 
     def build_ui(self):
+        current_hour = time.localtime().tm_hour
+        if 5 <= current_hour < 15:
+            gradient_start, gradient_end = "#4facfe", "#00f2fe"  # day
+        elif 15 <= current_hour < 20:
+            gradient_start, gradient_end = "#f9d423", "#ff4e50"  # sunset
+        else:
+            gradient_start, gradient_end = "#2c3e50", "#000000"  # night
         theme = get_current_theme()
         self.apply_theme(theme)
+
+        self.weather_canvas = tk.Canvas(self, width=240, height=120, highlightthickness=0)
+        self.weather_canvas.pack()
+        self.draw_gradient(self.weather_canvas, gradient_start, gradient_end)
 
         weather = scan_weather()
         timestamp = "Unknown"
@@ -28,27 +39,34 @@ class BriefApp(tk.Tk):
                 if ts:
                     timestamp = time.strftime("%H:%M", time.localtime(ts))
 
-        self.weather_label = tk.Label(
-            self,
+        self.weather_canvas.create_text(
+            120, 60,
             text=weather,
-            bg=self.bg,
-            fg=self.fg,
-            wraplength=200,
-            justify="center"
+            fill=self.fg,
+            font=("Helvetica", 10),
+            justify="center",
+            width=200
         )
-        self.weather_label.pack(pady=(30, 5))
 
-        self.timestamp_label = tk.Label(
-            self,
+        self.weather_canvas.create_text(
+            120, 105,
             text=f"Last updated: {timestamp}",
-            bg=self.bg,
-            fg=self.fg,
+            fill=self.fg,
             font=("Helvetica", 8)
         )
-        self.timestamp_label.pack(pady=(0, 20))
 
         self.update_widget_styles(theme)
 
+    def draw_gradient(self, canvas, color1, color2):
+        steps = 100
+        for i in range(steps):
+            r1, g1, b1 = self.winfo_rgb(color1)
+            r2, g2, b2 = self.winfo_rgb(color2)
+            r = int(r1 + (r2 - r1) * i / steps) >> 8
+            g = int(g1 + (g2 - g1) * i / steps) >> 8
+            b = int(b1 + (b2 - b1) * i / steps) >> 8
+            hex_color = f"#{r:02x}{g:02x}{b:02x}"
+            canvas.create_rectangle(0, i * 120 // steps, 240, (i + 1) * 120 // steps, outline="", fill=hex_color)
 
     def on_theme_change(self, event):
         selected_name = self.theme_var.get()
