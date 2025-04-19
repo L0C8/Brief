@@ -4,7 +4,8 @@ import time
 import tkinter as tk
 from tkinter import ttk
 from themes import get_current_theme, list_themes, switch_to_theme
-from weatherbox import WeatherBox
+from widgets.weatherbox import WeatherBox
+from widgets.newsbox import NewsBox
 
 class BriefApp(tk.Tk):
     def __init__(self):
@@ -20,7 +21,8 @@ class BriefApp(tk.Tk):
         self.apply_theme(theme)
 
         self.weather_box = WeatherBox(self)
-
+        self.news_box = NewsBox(self)
+        
         self.update_widget_styles(theme)
 
     def on_theme_change(self, event):
