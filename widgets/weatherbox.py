@@ -70,7 +70,7 @@ class WeatherBox(tk.Canvas):
         )
 
     def get_gpx(self, code, is_day=True):
-        suffix = "d" if is_day else "n"
+        suf = "d" if is_day else "n"
         if 200 <= code < 300:
             return f"assets/11{suf}.png"  # Thunderstorm
         elif 300 <= code < 400:
