@@ -53,3 +53,22 @@ def format_weather(data):
     temp = data.get("main", {}).get("temp", "?")
     desc = data.get("weather", [{}])[0].get("description", "no data")
     return f"{city}, {country}: {temp}°C, {desc.capitalize()}"
+
+def scan_news():
+    api_key = get_api_key("newsapi")
+    if not api_key:
+        return ["Missing NewsAPI key."]
+
+    try:
+        url = f"https://newsapi.org/v2/top-headlines?country=us&apiKey={api_key}"
+        response = requests.get(url)
+        if response.status_code != 200:
+            return [f"News error: {response.status_code}"]
+
+        data = response.json()
+        articles = data.get("articles", [])
+        headlines = [article["title"] for article in articles[:5]]
+        return headlines if headlines else ["No headlines found."]
+
+    except Exception as e:
+        return [f"News error: {e}"]
