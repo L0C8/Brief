@@ -4,8 +4,10 @@ import json
 import time
 from utils import get_api_key
 
-CACHE_FILE = os.path.join("data", "cached_weather.json")
-CACHE_DURATION = 15 * 60  # 15 minutes
+WEATHER_CACHE_FILE = os.path.join("data", "cached_weather.json")
+NEWS_CACHE_FILE = os.path.join("data", "cached_news.json")
+WEATHER_CACHE_DURATION = 15 * 60  # 15 minutes
+NEWS_CACHE_DURATION = 3 * 60 * 60  # 3 hours
 
 def scan_weather(location=None):
     api_key = get_api_key("openweathermap")
@@ -23,12 +25,12 @@ def scan_weather(location=None):
 
         lat, lon = loc.split(",")
 
-        if os.path.exists(CACHE_FILE):
-            with open(CACHE_FILE, "r") as f:
+        if os.path.exists(WEATHER_CACHE_FILE):
+            with open(WEATHER_CACHE_FILE, "r") as f:
                 cached = json.load(f)
                 cached_loc = cached.get("location", "")
                 if (
-                    time.time() - cached.get("timestamp", 0) < CACHE_DURATION
+                    time.time() - cached.get("timestamp", 0) < WEATHER_CACHE_DURATION
                     and cached_loc == loc
                 ):
                     return format_weather(cached["data"])
@@ -39,13 +41,42 @@ def scan_weather(location=None):
         if data.get("cod") != 200:
             return f"Weather error: {data.get('message', 'unknown error')}"
 
-        with open(CACHE_FILE, "w") as f:
+        with open(WEATHER_CACHE_FILE, "w") as f:
             json.dump({"timestamp": time.time(), "location": loc, "data": data}, f)
 
         return format_weather(data)
 
     except Exception as e:
         return f"Weather error: {e}"
+
+def scan_news():
+    api_key = get_api_key("newsapi")
+    if not api_key:
+        return ["Missing NewsAPI key."]
+
+    try:
+        if os.path.exists(NEWS_CACHE_FILE):
+            with open(NEWS_CACHE_FILE, "r") as f:
+                cached = json.load(f)
+                if time.time() - cached.get("timestamp", 0) < NEWS_CACHE_DURATION:
+                    return cached.get("headlines", [])
+
+        url = f"https://newsapi.org/v2/top-headlines?country=us&apiKey={api_key}"
+        response = requests.get(url)
+        if response.status_code != 200:
+            return [f"News error: {response.status_code}"]
+
+        data = response.json()
+        articles = data.get("articles", [])
+        headlines = [article["title"] for article in articles[:5]]
+
+        with open(NEWS_CACHE_FILE, "w") as f:
+            json.dump({"timestamp": time.time(), "headlines": headlines}, f)
+
+        return headlines if headlines else ["No headlines found."]
+
+    except Exception as e:
+        return [f"News error: {e}"]
 
 def format_weather(data):
     city = data.get("name", "Unknown")

@@ -97,6 +97,36 @@ headline = #bf360c
             f.write(default_content)
         print("Default themes.ini created.")
 
+# weather settings
+
+def get_icon_path_from_code(code, is_day=True):
+    suf = "d" if is_day else "n"
+    if 200 <= code < 300:
+        return f"assets/11{suf}.png"  # Thunderstorm
+    elif 300 <= code < 400:
+        return f"assets/09{suf}.png"  # Drizzle
+    elif 500 <= code < 505:
+        return f"assets/10{suf}.png"  # Light to moderate rain
+    elif code == 511:
+        return f"assets/13{suf}.png"  # Freezing rain
+    elif 520 <= code < 600:
+        return f"assets/09{suf}.png"  # Shower rain
+    elif 600 <= code < 700:
+        return f"assets/13{suf}.png"  # Snow
+    elif 700 <= code < 800:
+        return f"assets/50{suf}.png"  # Atmosphere
+    elif code == 800:
+        return f"assets/01{suf}.png"  # Clear
+    elif code == 801:
+        return f"assets/02{suf}.png"  # Few clouds
+    elif code == 802:
+        return f"assets/03{suf}.png"  # Scattered clouds
+    elif code in [803, 804]:
+        return f"assets/04{suf}.png"  # Broken/overcast clouds
+    else:
+        return f"assets/01{suf}.png"  # Fallback: Clear
+
+
 # user settings
 
 def initialize_user_settings():
