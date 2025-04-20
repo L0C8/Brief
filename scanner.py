@@ -87,7 +87,9 @@ def scan_news(category="general"):
                 if time.time() - cached_data.get("timestamp", 0) < NEWS_CACHE_DURATION:
                     return cached_data.get("headlines", [])
 
-        url = f"https://newsapi.org/v2/top-headlines?country=us&category={category}&pageSize=20&apiKey={api_key}"
+        geo = scan_ipinfo()
+        country = geo.get("country", "us").lower()
+        url = f"https://newsapi.org/v2/top-headlines?country={country}&category={category}&pageSize=20&apiKey={api_key}"
         response = requests.get(url)
         if response.status_code != 200:
             return [f"News error: {response.status_code}"]
