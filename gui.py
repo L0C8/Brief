@@ -20,9 +20,12 @@ class BriefApp(tk.Tk):
         theme = get_current_theme()
         self.apply_theme(theme)
 
+        from widgets.toolbar import Toolbar
+        self.toolbar = Toolbar(self, bg_color=self.bg, fg_color=self.fg)
+
         self.weather_box = WeatherBox(self)
-        self.news_box = NewsBox(self)
-        
+        self.news_box = NewsBox(self, bg_color=self.bg, fg_color=self.fg)
+
         self.update_widget_styles(theme)
 
     def on_theme_change(self, event):
@@ -43,3 +46,4 @@ class BriefApp(tk.Tk):
 if __name__ == "__main__":
     app = BriefApp()
     app.mainloop()
+
