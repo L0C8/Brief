@@ -79,7 +79,10 @@ def scan_news():
         return ["Missing GNews API key."]
 
     try:
-        cache_key = "gnews_top"
+        geo = scan_ipinfo()
+        country_code = geo.get("country", "us").lower()
+        cache_key = f"gnews_{country_code}"
+
         if os.path.exists(NEWS_CACHE_FILE):
             with open(NEWS_CACHE_FILE, "r") as f:
                 cached = json.load(f)
@@ -87,7 +90,7 @@ def scan_news():
                 if time.time() - cached_data.get("timestamp", 0) < NEWS_CACHE_DURATION:
                     return cached_data.get("headlines", [])
 
-        url = f"https://gnews.io/api/v4/top-headlines?max=20&token={api_key}"
+        url = f"https://gnews.io/api/v4/top-headlines?country={country_code}&max=20&token={api_key}"
         response = requests.get(url)
         if response.status_code != 200:
             return [f"News error: {response.status_code}"]
