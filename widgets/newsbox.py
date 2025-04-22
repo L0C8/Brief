@@ -18,6 +18,7 @@ class NewsBox(tk.Frame):
         self.render_headlines()
 
     def load_cached_headlines(self):
+        from scanner import scan_news
         cache_path = "data/cached_news.json"
         cache_key = "gnews_top"
         if os.path.exists(cache_path):
@@ -26,7 +27,7 @@ class NewsBox(tk.Frame):
                 data = cached.get(cache_key, {})
                 if time.time() - data.get("timestamp", 0) < 3 * 60 * 60:
                     return data.get("headlines", [])
-        return ["No headlines available."]
+        return scan_news()
 
     def render_headlines(self):
         title = tk.Label(self, text="Top News", bg=self.bg_color, fg=self.fg_color, font=("Helvetica", 10, "bold"))
