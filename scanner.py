@@ -73,13 +73,13 @@ def format_weather(data):
     desc = data.get("weather", [{}])[0].get("description", "no data")
     return f"{city}, {country}: {temp}°C, {desc.capitalize()}"
 
-def scan_news(category="general"):
-    api_key = get_api_key("newsapi")
+def scan_news():
+    api_key = get_api_key("gnews")
     if not api_key:
-        return ["Missing NewsAPI key."]
+        return ["Missing GNews API key."]
 
     try:
-        cache_key = f"{category.lower()}"
+        cache_key = "gnews_top"
         if os.path.exists(NEWS_CACHE_FILE):
             with open(NEWS_CACHE_FILE, "r") as f:
                 cached = json.load(f)
@@ -87,9 +87,7 @@ def scan_news(category="general"):
                 if time.time() - cached_data.get("timestamp", 0) < NEWS_CACHE_DURATION:
                     return cached_data.get("headlines", [])
 
-        geo = scan_ipinfo()
-        country = geo.get("country", "us").lower()
-        url = f"https://newsapi.org/v2/top-headlines?country={country}&category={category}&pageSize=20&apiKey={api_key}"
+        url = f"https://gnews.io/api/v4/top-headlines?max=20&token={api_key}"
         response = requests.get(url)
         if response.status_code != 200:
             return [f"News error: {response.status_code}"]
